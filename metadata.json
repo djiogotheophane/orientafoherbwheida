@@ -1,0 +1,6 @@
+{
+  "name": "Orienta Foherb Whieda",
+  "description": "Un site vitrine moderne et professionnel présentant la gamme prestigieuse de compléments alimentaires et d'appareils de bien-être Fohow et Foherb.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
