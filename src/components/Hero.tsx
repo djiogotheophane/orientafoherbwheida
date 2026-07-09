@@ -3,14 +3,15 @@ import { Compass, Leaf, ShieldCheck, Heart, ArrowDown } from 'lucide-react';
 import { motion } from 'motion/react';
 
 // Use the generated image path from AI Studio
-const HERO_BANNER_IMG = "/src/assets/images/hero_banner_1783624456299.jpg";
+const HERO_BANNER_IMG = new URL('../assets/images/hero_banner_1783624456299.jpg', import.meta.url).href;
+const HERO_BG_IMG = new URL('../assets/images/fohowhope_hero_banner_1783630258715.jpg', import.meta.url).href;
 
 export default function Hero() {
   return (
     <div 
       id="hero" 
       className="relative bg-cover bg-center overflow-hidden py-12 lg:py-20 border-b border-stone-800"
-      style={{ backgroundImage: `url("/src/assets/images/fohowhope_hero_banner_1783630258715.jpg")` }}
+      style={{ backgroundImage: `url("${HERO_BG_IMG}")` }}
     >
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px] z-0" />
 

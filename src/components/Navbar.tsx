@@ -2,6 +2,8 @@ import React from 'react';
 import { ShoppingCart, Search, Leaf } from 'lucide-react';
 import { motion } from 'motion/react';
 
+const LOGO_IMG = new URL('../assets/images/fohowhope_logo_1783630501861.jpg', import.meta.url).href;
+
 interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
@@ -23,7 +25,7 @@ export default function Navbar({
           {/* Brand Logo */}
           <div className="flex items-center gap-2.5 shrink-0">
             <img 
-              src="/src/assets/images/fohowhope_logo_1783630501861.jpg" 
+              src={LOGO_IMG} 
               alt="Fohowhope Logo" 
               className="w-12 h-12 object-contain rounded-full border border-stone-200" 
               referrerPolicy="no-referrer"
