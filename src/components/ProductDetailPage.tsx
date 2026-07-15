@@ -111,31 +111,10 @@ export default function ProductDetailPage({ product, onNavigate, onAddToCart }: 
                 </button>
               </div>
 
-              {/* Title & Seller Attribute */}
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-semibold italic text-ink tracking-tight mb-2">
+              {/* Title */}
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-display font-semibold italic text-ink tracking-tight mb-6">
                 {product.name}
               </h1>
-
-              {/* Seller attribution link */}
-              <div className="flex items-center gap-2 mb-6">
-                <Store className="w-4 h-4 text-taupe" />
-                <span className="text-xs text-[#555]">
-                  Vendeur officiel :{" "}
-                  <button
-                    onClick={() => onNavigate(`/boutique/${product.sellerSlug || 'orienta'}`)}
-                    className="font-bold text-taupe hover:text-ink hover:underline cursor-pointer"
-                  >
-                    {product.sellerName || 'Orienta'}
-                  </button>
-                </span>
-                <span className="text-[10px] text-stone-400">|</span>
-                <button
-                  onClick={() => onNavigate(`/boutique/${product.sellerSlug || 'orienta'}`)}
-                  className="text-[10px] text-taupe hover:text-ink hover:underline cursor-pointer flex items-center gap-0.5"
-                >
-                  Visiter sa boutique ↗
-                </button>
-              </div>
 
               {/* Price Row */}
               {product.price && (
@@ -234,7 +213,7 @@ export default function ProductDetailPage({ product, onNavigate, onAddToCart }: 
               {/* WhatsApp direct Order link */}
               <a
                 href={`https://api.whatsapp.com/send?phone=237697254607&text=${encodeURIComponent(
-                  `Bonjour, je souhaite commander ${quantity} x le produit "${product.name}" de la boutique de ${product.sellerName || 'Orienta'}. Pouvez-vous me guider ?`
+                  `Bonjour, je souhaite commander ${quantity} x le produit "${product.name}". Pouvez-vous me guider ?`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

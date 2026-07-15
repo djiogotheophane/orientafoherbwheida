@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { PRODUCTS, REVIEWS } from './data';
-import { Product, CartItem, Category, Boutique } from './types';
+import { Product, CartItem, Category } from './types';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import ProductCard from './components/ProductCard';
@@ -8,8 +8,7 @@ import ProductModal from './components/ProductModal';
 import CartDrawer from './components/CartDrawer';
 import Footer from './components/Footer';
 import ProductDetailPage from './components/ProductDetailPage';
-import BoutiquePage from './components/BoutiquePage';
-import { loadProducts, saveProduct, deleteProductFromDb, slugify, deduplicateProducts, loadBoutiques, saveBoutique } from './db';
+import { loadProducts, saveProduct, deleteProductFromDb, slugify, deduplicateProducts } from './db';
 import { 
   Leaf, 
   Sparkles, 
@@ -138,17 +137,6 @@ export default function App() {
     }
     setCurrentSpace(space);
   };
-  const [boutiques, setBoutiques] = useState<Boutique[]>([]);
-  const [currentBoutique, setCurrentBoutique] = useState<Boutique | null>(() => {
-    const saved = typeof window !== 'undefined' ? localStorage.getItem('fohowhope_logged_in_boutique') : null;
-    return saved ? JSON.parse(saved) : null;
-  });
-  const [signupEmail, setSignupEmail] = useState('');
-  const [signupSellerName, setSignupSellerName] = useState('');
-  const [signupShopName, setSignupShopName] = useState('');
-  const [loginEmail, setLoginEmail] = useState('');
-  const [copiedLink, setCopiedLink] = useState(false);
-
   const [orders, setOrders] = useState<any[]>(() => {
     const saved = localStorage.getItem('fohowhope_user_orders');
     return saved ? JSON.parse(saved) : [];
@@ -253,9 +241,6 @@ export default function App() {
         const loadedProds = await loadProducts();
         setProducts(deduplicateProducts(loadedProds));
       }
-      
-      const loadedBouts = await loadBoutiques();
-      setBoutiques(loadedBouts);
     }
     initDbData();
   }, []);
@@ -269,27 +254,6 @@ export default function App() {
   const [newProductBenefits, setNewProductBenefits] = useState('');
   const [newProductHowToUse, setNewProductHowToUse] = useState('');
   const [newProductIngredients, setNewProductIngredients] = useState('');
-  const [newProductSellerName, setNewProductSellerName] = useState(() => {
-    const savedBoutique = typeof window !== 'undefined' ? localStorage.getItem('fohowhope_logged_in_boutique') : null;
-    if (savedBoutique) {
-      try {
-        const parsed = JSON.parse(savedBoutique);
-        return parsed?.sellerName || 'Orienta';
-      } catch (e) {
-        // Fallback
-      }
-    }
-    return 'Orienta';
-  });
-
-  // Sync newProductSellerName with current logged in boutique automatically
-  useEffect(() => {
-    if (currentBoutique) {
-      setNewProductSellerName(currentBoutique.sellerName);
-    } else {
-      setNewProductSellerName('Orienta');
-    }
-  }, [currentBoutique]);
 
   // Persist products to localStorage (secondary cache)
   useEffect(() => {
@@ -334,8 +298,8 @@ export default function App() {
       ? newProductIngredients.split(',').map(i => i.trim()).filter(i => i.length > 0)
       : [];
 
-    const sellerNameTrimmed = currentBoutique ? currentBoutique.sellerName : (newProductSellerName.trim() || 'Orienta');
-    const sellerSlug = currentBoutique ? currentBoutique.sellerSlug : slugify(sellerNameTrimmed);
+    const sellerNameTrimmed = 'Orienta';
+    const sellerSlug = 'orienta';
     const productSlug = slugify(newProductName.trim());
 
     const newProduct: Product = {
@@ -366,74 +330,8 @@ export default function App() {
     setNewProductBenefits('');
     setNewProductHowToUse('');
     setNewProductIngredients('');
-    setNewProductSellerName(currentBoutique ? currentBoutique.sellerName : 'Orienta');
 
     setIsAddModalOpen(false);
-  };
-
-  // Boutique registration and login handlers
-  const handleCreateBoutique = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!signupEmail.trim() || !signupSellerName.trim() || !signupShopName.trim()) {
-      alert("Veuillez remplir tous les champs.");
-      return;
-    }
-    
-    const sellerSlug = slugify(signupSellerName.trim());
-    
-    // Check if boutique already exists with this slug
-    const alreadyExists = boutiques.some(b => b.sellerSlug === sellerSlug);
-    if (alreadyExists) {
-      alert("Ce nom de conseiller est déjà pris par une autre boutique. Veuillez en utiliser un autre.");
-      return;
-    }
-
-    const uniqueId = `shop-${Math.floor(100000 + Math.random() * 900000)}`;
-    const newBoutique: Boutique = {
-      id: uniqueId,
-      email: signupEmail.trim().toLowerCase(),
-      sellerName: signupSellerName.trim(),
-      sellerSlug,
-      shopName: signupShopName.trim(),
-      createdAt: new Date().toLocaleDateString('fr-FR'),
-    };
-
-    await saveBoutique(newBoutique);
-    setBoutiques(prev => [newBoutique, ...prev]);
-    setCurrentBoutique(newBoutique);
-    localStorage.setItem('fohowhope_logged_in_boutique', JSON.stringify(newBoutique));
-
-    alert(`Votre compte et votre boutique ont été créés avec succès !\nIdentifiant de boutique : ${uniqueId}`);
-    
-    // Clear forms
-    setSignupEmail('');
-    setSignupSellerName('');
-    setSignupShopName('');
-  };
-
-  const handleLoginBoutique = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!loginEmail.trim()) {
-      alert("Veuillez entrer votre adresse email.");
-      return;
-    }
-    const emailLower = loginEmail.trim().toLowerCase();
-    const found = boutiques.find(b => b.email === emailLower);
-    if (found) {
-      setCurrentBoutique(found);
-      localStorage.setItem('fohowhope_logged_in_boutique', JSON.stringify(found));
-      alert(`Heureux de vous revoir sur votre espace admin, ${found.sellerName} !`);
-      setLoginEmail('');
-    } else {
-      alert("Aucune boutique trouvée avec cette adresse email. Veuillez en créer une.");
-    }
-  };
-
-  const handleLogoutBoutique = () => {
-    if (confirm("Voulez-vous vous déconnecter de votre espace administrateur ?")) {
-      setCurrentBoutique(null);
-      localStorage.removeItem('fohowhope_logged_in_boutique');
-    }
   };
 
   // Delete product action
@@ -521,20 +419,12 @@ export default function App() {
     if (currentPath.startsWith('/produit/')) {
       return { type: 'product', idOrSlug: currentPath.slice('/produit/'.length) };
     }
-    if (currentPath.startsWith('/boutique/')) {
-      return { type: 'boutique', sellerSlug: currentPath.slice('/boutique/'.length) };
-    }
     return { type: 'home' };
   }, [currentPath]);
 
   const matchedProduct = useMemo(() => {
     if (route.type !== 'product') return null;
     return products.find(p => p.id === route.idOrSlug || p.productSlug === route.idOrSlug);
-  }, [route, products]);
-
-  const sellerProducts = useMemo(() => {
-    if (route.type !== 'boutique') return [];
-    return products.filter(p => p.sellerSlug === route.sellerSlug);
   }, [route, products]);
 
   return (
@@ -567,17 +457,6 @@ export default function App() {
               <button onClick={() => navigateTo('/')} className="bg-ink hover:bg-taupe text-white text-[11px] uppercase tracking-wider font-bold py-2.5 px-6 rounded-md cursor-pointer">Retour à l'accueil</button>
             </div>
           )
-        ) : route.type === 'boutique' ? (
-          <BoutiquePage 
-            sellerProducts={sellerProducts} 
-            sellerSlug={route.sellerSlug || ''} 
-            onNavigate={navigateTo} 
-            onAddToCart={handleAddToCart} 
-            onViewDetails={setSelectedProduct} 
-            onDeleteProduct={handleDeleteProduct} 
-            currentSpace={currentSpace} 
-            boutiques={boutiques}
-          />
         ) : (
           <>
             {/* Luxury Hero Banner Section */}
@@ -682,297 +561,114 @@ export default function App() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -15 }}
                   transition={{ duration: 0.3 }}
-                  className="mb-12"
+                  className="mb-12 space-y-6"
                   id="admin-space-dashboard"
                 >
-                  {!currentBoutique ? (
-                    /* SIGN UP & LOGIN PANEL FOR BOUTIQUE */
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-white rounded-3xl border border-accent/40 shadow-xs p-6 sm:p-8 mb-6">
-                      {/* Create Account Form */}
-                      <div className="space-y-4">
-                        <div className="inline-flex items-center gap-1.5 bg-[#656d4a]/10 text-[#656d4a] py-1 px-2.5 rounded-full text-[9px] font-bold uppercase tracking-wider">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          Nouveau Conseiller
-                        </div>
-                        <h3 className="text-xl font-display font-semibold text-ink">Créer mon espace & ma boutique</h3>
-                        <p className="text-[11px] text-stone-500 leading-relaxed">
-                          Remplissez le formulaire ci-dessous pour obtenir instantanément votre identifiant unique, votre lien de boutique personnalisé, et commencez à publier vos produits Fohow.
-                        </p>
-                        
-                        <form onSubmit={handleCreateBoutique} className="space-y-3 pt-2">
-                          <div>
-                            <label className="block text-[9px] font-bold uppercase tracking-wider text-taupe mb-1">Votre Nom Complet (Conseiller)</label>
-                            <input 
-                              type="text" 
-                              required
-                              value={signupSellerName}
-                              onChange={(e) => setSignupSellerName(e.target.value)}
-                              placeholder="Ex: Jean-Luc Dupont" 
-                              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-accent/40 focus:outline-none focus:border-taupe bg-stone-50"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] font-bold uppercase tracking-wider text-taupe mb-1">Votre Adresse Email</label>
-                            <input 
-                              type="email" 
-                              required
-                              value={signupEmail}
-                              onChange={(e) => setSignupEmail(e.target.value)}
-                              placeholder="Ex: jean.luc@example.com" 
-                              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-accent/40 focus:outline-none focus:border-taupe bg-stone-50"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-[9px] font-bold uppercase tracking-wider text-taupe mb-1">Nom de votre Boutique</label>
-                            <input 
-                              type="text" 
-                              required
-                              value={signupShopName}
-                              onChange={(e) => setSignupShopName(e.target.value)}
-                              placeholder="Ex: Fohow Bien-être Paris" 
-                              className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-accent/40 focus:outline-none focus:border-taupe bg-stone-50"
-                            />
-                          </div>
-                          
-                          <button 
-                            type="submit"
-                            className="w-full bg-[#656d4a] hover:bg-[#52583b] text-white text-[10px] uppercase tracking-wider font-bold py-3.5 px-4 rounded-lg shadow-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-                          >
-                            Créer ma Boutique & Générer mon Lien
-                          </button>
-                        </form>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
+                    {/* Stat 1: Total Products */}
+                    <div className="bg-white rounded-2xl p-6 border border-accent/40 shadow-xs flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-beige flex items-center justify-center text-taupe shrink-0">
+                        <Leaf className="w-6 h-6" />
                       </div>
-
-                      {/* Login Form */}
-                      <div className="space-y-4 border-t md:border-t-0 md:border-l border-stone-100 pt-6 md:pt-0 md:pl-8 flex flex-col justify-between">
-                        <div>
-                          <div className="inline-flex items-center gap-1.5 bg-taupe/10 text-taupe py-1 px-2.5 rounded-full text-[9px] font-bold uppercase tracking-wider">
-                            <User className="w-3.5 h-3.5" />
-                            Accès Conseiller
-                          </div>
-                          <h3 className="text-xl font-display font-semibold text-ink mt-2">Me connecter à mon espace</h3>
-                          <p className="text-[11px] text-stone-500 leading-relaxed mt-2">
-                            Si vous avez déjà configuré votre espace, saisissez l'adresse e-mail associée à votre boutique pour la retrouver.
-                          </p>
-                          
-                          <form onSubmit={handleLoginBoutique} className="space-y-3 pt-6">
-                            <div>
-                              <label className="block text-[9px] font-bold uppercase tracking-wider text-taupe mb-1">Votre Adresse Email de Boutique</label>
-                              <input 
-                                type="email" 
-                                required
-                                value={loginEmail}
-                                onChange={(e) => setLoginEmail(e.target.value)}
-                                placeholder="Saisissez votre email" 
-                                className="w-full text-xs px-3.5 py-2.5 rounded-lg border border-accent/40 focus:outline-none focus:border-taupe bg-stone-50"
-                              />
-                            </div>
-                            
-                            <button 
-                              type="submit"
-                              className="w-full bg-taupe hover:bg-ink text-white text-[10px] uppercase tracking-wider font-bold py-3.5 px-4 rounded-lg shadow-sm transition-all cursor-pointer hover:scale-[1.02] active:scale-[0.98]"
-                            >
-                              Me connecter à mon espace
-                            </button>
-                          </form>
-                        </div>
-
-                        <div className="bg-beige/40 rounded-xl p-4 border border-accent/30 text-center mt-6">
-                          <span className="text-[9px] font-bold text-taupe block mb-1">Besoin d'aide ?</span>
-                          <p className="text-[10px] text-stone-500">Contactez le support administratif en cas de perte de vos informations de connexion.</p>
-                        </div>
+                      <div>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-taupe">Produits au catalogue</span>
+                        <h4 className="text-2xl font-display font-bold text-ink mt-0.5">
+                          {products.length}
+                        </h4>
                       </div>
                     </div>
-                  ) : (
-                    /* LOGGED IN BOUTIQUE DASHBOARD & LINK VIEWER */
-                    <div className="space-y-6">
-                      {/* Shop Owner Info & Copier/Voir Actions */}
-                      <div className="bg-white rounded-3xl border border-accent/40 shadow-xs p-6 sm:p-8 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-6 opacity-5">
-                          <Store className="w-32 h-32 text-taupe" />
-                        </div>
-                        
-                        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 z-10 relative">
-                          <div className="space-y-2">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <span className="bg-[#656d4a]/10 text-[#656d4a] text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                                Boutique Active
-                              </span>
-                              <span className="bg-taupe/10 text-taupe text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
-                                ID: {currentBoutique.id}
-                              </span>
-                            </div>
-                            <h2 className="text-2xl font-display font-bold text-ink italic">
-                              {currentBoutique.shopName}
-                            </h2>
-                            <p className="text-xs text-stone-500">
-                              Gérée par <span className="font-semibold text-stone-700">{currentBoutique.sellerName}</span> ({currentBoutique.email}) • Créée le {currentBoutique.createdAt}
-                            </p>
-                          </div>
-                          
-                          <div className="flex flex-wrap gap-2 w-full lg:w-auto">
-                            <button
-                              onClick={() => {
-                                const link = `${window.location.origin}/#/boutique/${currentBoutique.sellerSlug}`;
-                                navigator.clipboard.writeText(link);
-                                setCopiedLink(true);
-                                setTimeout(() => setCopiedLink(false), 2000);
-                              }}
-                              className="grow sm:grow-0 bg-white hover:bg-stone-50 text-ink border border-accent/40 text-[10px] uppercase tracking-wider font-bold py-3 px-5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5"
-                            >
-                              {copiedLink ? (
-                                <>
-                                  <Check className="w-3.5 h-3.5 text-emerald-600" />
-                                  <span className="text-emerald-600">Copié !</span>
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="w-3.5 h-3.5" />
-                                  <span>Copier mon lien</span>
-                                </>
-                              )}
-                            </button>
 
-                            <button
-                              onClick={() => {
-                                handleSpaceChange('client');
-                                navigateTo(`/boutique/${currentBoutique.sellerSlug}`);
-                              }}
-                              className="grow sm:grow-0 bg-[#656d4a] hover:bg-[#52583b] text-white text-[10px] uppercase tracking-wider font-bold py-3 px-5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
-                            >
-                              <ExternalLink className="w-3.5 h-3.5" />
-                              <span>Voir ma boutique</span>
-                            </button>
-
-                            <button
-                              onClick={handleLogoutBoutique}
-                              className="grow sm:grow-0 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 text-[10px] uppercase tracking-wider font-bold py-3 px-4 rounded-lg transition-all cursor-pointer"
-                            >
-                              Déconnexion
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Beautiful generated URL display */}
-                        <div className="mt-6 bg-beige/30 border border-accent/30 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                          <div className="space-y-0.5">
-                            <span className="text-[9px] font-bold text-taupe uppercase tracking-wider block">Votre Lien Personnel de Vente</span>
-                            <code className="text-xs font-mono text-[#656d4a] break-all">
-                              {window.location.origin}/#/boutique/{currentBoutique.sellerSlug}
-                            </code>
-                          </div>
-                          <span className="text-[10px] text-stone-500 bg-white border border-stone-100 rounded-md py-1 px-2.5 font-sans whitespace-nowrap">
-                            Actif pour tous les visiteurs 🟢
-                          </span>
-                        </div>
+                    {/* Stat 2: Total Orders */}
+                    <div className="bg-white rounded-2xl p-6 border border-accent/40 shadow-xs flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-beige flex items-center justify-center text-taupe shrink-0">
+                        <ShoppingBag className="w-6 h-6" />
                       </div>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-6">
-                        {/* Stat 1: Total Products */}
-                        <div className="bg-white rounded-2xl p-6 border border-accent/40 shadow-xs flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-beige flex items-center justify-center text-taupe shrink-0">
-                            <Leaf className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-taupe">Produits au catalogue</span>
-                            <h4 className="text-2xl font-display font-bold text-ink mt-0.5">
-                              {products.length}
-                            </h4>
-                          </div>
-                        </div>
-
-                        {/* Stat 2: Total Orders */}
-                        <div className="bg-white rounded-2xl p-6 border border-accent/40 shadow-xs flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-beige flex items-center justify-center text-taupe shrink-0">
-                            <ShoppingBag className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-taupe">Commandes clients</span>
-                            <h4 className="text-2xl font-display font-bold text-ink mt-0.5">
-                              {orders.length}
-                            </h4>
-                          </div>
-                        </div>
-
-                        {/* Stat 3: Total Simulated Sales */}
-                        <div className="bg-white rounded-2xl p-6 border border-accent/40 shadow-xs flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-xl bg-beige flex items-center justify-center text-taupe shrink-0">
-                            <TrendingUp className="w-6 h-6" />
-                          </div>
-                          <div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-taupe">Chiffre d'Affaires</span>
-                            <h4 className="text-2xl font-display font-bold text-ink mt-0.5">
-                              {orders.reduce((sum, o) => sum + (o.total || 0), 0).toLocaleString('fr-FR')} FCFA
-                            </h4>
-                          </div>
-                        </div>
+                      <div>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-taupe">Commandes clients</span>
+                        <h4 className="text-2xl font-display font-bold text-ink mt-0.5">
+                          {orders.length}
+                        </h4>
                       </div>
+                    </div>
 
-                      {/* Admin Quick Action Bar */}
-                      <div className="bg-beige/40 rounded-xl border border-accent/30 p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
-                        <div className="text-center sm:text-left">
-                          <h4 className="text-xs font-bold text-ink">Action requise de l'administrateur</h4>
-                          <p className="text-[11px] text-stone-500 mt-0.5">Ajoutez de nouveaux produits Fohow pour alimenter la vitrine de vos clients.</p>
-                        </div>
-                        <div className="flex gap-3 shrink-0">
-                          <button
-                            onClick={async () => {
-                              if (confirm('Voulez-vous vraiment vider toutes les données du catalogue et des commandes de la base de données ?')) {
-                                setProducts([]);
-                                setOrders([]);
-                                setCart([]);
-                                localStorage.removeItem('fohowhope_user_products');
-                                localStorage.removeItem('fohowhope_user_orders');
+                    {/* Stat 3: Total Simulated Sales */}
+                    <div className="bg-white rounded-2xl p-6 border border-accent/40 shadow-xs flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-beige flex items-center justify-center text-taupe shrink-0">
+                        <TrendingUp className="w-6 h-6" />
+                      </div>
+                      <div>
+                        <span className="text-[9px] font-bold uppercase tracking-widest text-taupe">Chiffre d'Affaires</span>
+                        <h4 className="text-2xl font-display font-bold text-ink mt-0.5">
+                          {orders.reduce((sum, o) => sum + (o.total || 0), 0).toLocaleString('fr-FR')} FCFA
+                        </h4>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Admin Quick Action Bar */}
+                  <div className="bg-beige/40 rounded-xl border border-accent/30 p-5 flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div className="text-center sm:text-left">
+                      <h4 className="text-xs font-bold text-ink">Action requise de l'administrateur</h4>
+                      <p className="text-[11px] text-stone-500 mt-0.5">Ajoutez de nouveaux produits Fohow pour alimenter la vitrine de vos clients.</p>
+                    </div>
+                    <div className="flex gap-3 shrink-0">
+                      <button
+                        onClick={async () => {
+                          if (confirm('Voulez-vous vraiment vider toutes les données du catalogue et des commandes de la base de données ?')) {
+                            setProducts([]);
+                            setOrders([]);
+                            setCart([]);
+                            localStorage.removeItem('fohowhope_user_products');
+                            localStorage.removeItem('fohowhope_user_orders');
+                            
+                            // Reset Firestore if active
+                            try {
+                              const { getDb } = await import('./db');
+                              const db = await getDb();
+                              if (db) {
+                                const firestoreModule = await import('firebase/firestore');
                                 
-                                // Reset Firestore if active
-                                try {
-                                  const { getDb } = await import('./db');
-                                  const db = await getDb();
-                                  if (db) {
-                                    const firestoreModule = await import('firebase/firestore');
-                                    
-                                    // Delete products
-                                    const productsCol = firestoreModule.collection(db, 'products');
-                                    const prodSnapshot = await firestoreModule.getDocs(productsCol);
-                                    for (const d of prodSnapshot.docs) {
-                                      await firestoreModule.deleteDoc(firestoreModule.doc(db, 'products', d.id));
-                                    }
-                                    
-                                    // Delete boutiques except maybe the primary/logged-in one, or keep them
-                                    console.log("Firestore products wiped.");
-                                  }
-                                } catch (e) {
-                                  console.error("Failed to delete Firestore collection items:", e);
+                                // Delete products
+                                const productsCol = firestoreModule.collection(db, 'products');
+                                const prodSnapshot = await firestoreModule.getDocs(productsCol);
+                                for (const d of prodSnapshot.docs) {
+                                  await firestoreModule.deleteDoc(firestoreModule.doc(db, 'products', d.id));
                                 }
                                 
-                                alert('Les données du catalogue et des commandes ont été réinitialisées.');
+                                console.log("Firestore products wiped.");
                               }
-                            }}
-                            className="bg-white hover:bg-stone-50 text-rose-600 border border-rose-200 text-[10px] uppercase tracking-wider font-bold py-3 px-5 rounded-md transition-colors cursor-pointer"
-                          >
-                            Tout réinitialiser
-                          </button>
-                          <button
-                            id="add-product-admin-widget-btn"
-                            onClick={() => setIsAddModalOpen(true)}
-                            className="bg-taupe hover:bg-ink text-white text-[10px] uppercase tracking-wider font-bold py-3 px-5 rounded-md shadow transition-all cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1.5"
-                          >
-                            <Plus className="w-3.5 h-3.5" /> Ajouter un produit
-                          </button>
-                        </div>
-                      </div>
+                            } catch (e) {
+                              console.error("Failed to delete Firestore collection items:", e);
+                            }
+                            
+                            alert('Les données du catalogue et des commandes ont été réinitialisées.');
+                          }
+                        }}
+                        className="bg-white hover:bg-stone-50 text-rose-600 border border-rose-200 text-[10px] uppercase tracking-wider font-bold py-3 px-5 rounded-md transition-colors cursor-pointer"
+                      >
+                        Tout réinitialiser
+                      </button>
+                      <button
+                        id="add-product-admin-widget-btn"
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="bg-taupe hover:bg-ink text-white text-[10px] uppercase tracking-wider font-bold py-3 px-5 rounded-md shadow transition-all cursor-pointer hover:scale-105 active:scale-95 flex items-center gap-1.5"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Ajouter un produit
+                      </button>
+                    </div>
+                  </div>
 
-                      {/* Personnalisation des textes du site (Espace Client) */}
-                      <div className="bg-white rounded-3xl border border-accent/40 shadow-xs p-6 sm:p-8 mt-6">
-                        <div className="flex items-center gap-2 mb-6 border-b border-stone-100 pb-4">
-                          <div className="w-10 h-10 rounded-xl bg-taupe/10 text-taupe flex items-center justify-center shrink-0">
-                            <Sparkles className="w-5 h-5 animate-pulse" />
-                          </div>
-                          <div>
-                            <h3 className="text-lg font-display font-bold text-ink italic">Personnaliser les textes de l'Espace Client</h3>
-                            <p className="text-[11px] text-stone-500">Modifiez instantanément les slogans, titres et paragraphes visibles par vos visiteurs sur la page d'accueil.</p>
-                          </div>
-                        </div>
+                  {/* Personnalisation des textes du site (Espace Client) */}
+                  <div className="bg-white rounded-3xl border border-accent/40 shadow-xs p-6 sm:p-8 mt-6">
+                    <div className="flex items-center gap-2 mb-6 border-b border-stone-100 pb-4">
+                      <div className="w-10 h-10 rounded-xl bg-taupe/10 text-taupe flex items-center justify-center shrink-0">
+                        <Sparkles className="w-5 h-5 animate-pulse" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-display font-bold text-ink italic">Personnaliser les textes de l'Espace Client</h3>
+                        <p className="text-[11px] text-stone-500">Modifiez instantanément les slogans, titres et paragraphes visibles par vos visiteurs sur la page d'accueil.</p>
+                      </div>
+                    </div>
 
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 text-left">
                           {/* Left Column: Hero Text Settings */}
@@ -1097,10 +793,8 @@ export default function App() {
                           </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                </motion.div>
-              )}
+                  </motion.div>
+                )}
             </AnimatePresence>
 
             {products.length === 0 ? (
@@ -1314,7 +1008,7 @@ export default function App() {
                 </div>
 
                 {/* Grid Inputs */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {/* Name */}
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-wider text-taupe mb-1.5 font-sans">
@@ -1346,31 +1040,6 @@ export default function App() {
                       <option value="Boissons fonctionnelles">Boissons fonctionnelles</option>
                       <option value="Appareils de santé">Appareils de santé</option>
                     </select>
-                  </div>
-
-                  {/* Seller / Boutique */}
-                  <div>
-                    <label className="block text-xs font-bold uppercase tracking-wider text-taupe mb-1.5 font-sans">
-                      Conseiller / Boutique *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      disabled={!!currentBoutique}
-                      placeholder="Ex: Orienta, Jean-Luc"
-                      value={currentBoutique ? currentBoutique.sellerName : newProductSellerName}
-                      onChange={(e) => setNewProductSellerName(e.target.value)}
-                      className={`w-full border text-xs py-2.5 px-3.5 rounded-lg outline-none transition-all text-ink font-sans ${
-                        currentBoutique 
-                          ? 'bg-stone-100 border-stone-200 text-stone-500 cursor-not-allowed' 
-                          : 'bg-stone-50 border-stone-200 focus:border-taupe focus:bg-white'
-                      }`}
-                    />
-                    {currentBoutique && (
-                      <p className="text-[10px] text-emerald-600 font-medium mt-1 font-sans">
-                        Associé automatiquement à votre boutique active
-                      </p>
-                    )}
                   </div>
                 </div>
 

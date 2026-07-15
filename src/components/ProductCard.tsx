@@ -93,7 +93,7 @@ export default function ProductCard({ product, onViewDetails, onOrder, onDelete 
                 onDelete(product.id);
               }
             }}
-            className="absolute top-14 right-3 p-2 rounded-full bg-white/95 backdrop-blur-md text-stone-400 hover:text-rose-600 hover:scale-110 transition-all duration-300 shadow-xs z-10"
+            className="absolute top-14 right-3 p-2 rounded-full bg-beige border border-rose-200 text-rose-600 hover:bg-rose-50 hover:scale-110 transition-all duration-300 shadow-xs z-10"
             title="Supprimer ce produit"
           >
             <Trash2 className="w-4 h-4" />
@@ -122,12 +122,6 @@ export default function ProductCard({ product, onViewDetails, onOrder, onDelete 
           <h3 className="text-base font-display font-semibold text-ink leading-snug line-clamp-2 h-[44px] group-hover:text-taupe transition-colors duration-200">
             {product.name}
           </h3>
-          
-          {product.sellerName && (
-            <span className="text-[10px] text-taupe font-medium block mt-1.5 mb-1">
-              Conseiller : <span className="font-semibold">{product.sellerName}</span>
-            </span>
-          )}
           
           <p className="text-[#666] text-[11px] leading-relaxed mb-4 line-clamp-3">
             {product.description}
@@ -176,7 +170,7 @@ export default function ProductCard({ product, onViewDetails, onOrder, onDelete 
                   onDelete(product.id);
                 }
               }}
-              className="w-full text-center bg-rose-600 hover:bg-rose-700 text-white font-bold text-[10px] uppercase tracking-wider py-2.5 px-3 rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 mt-2 cursor-pointer shadow-sm hover:shadow"
+              className="w-full text-center bg-beige hover:bg-rose-50 text-rose-700 border border-rose-200 font-bold text-[10px] uppercase tracking-wider py-2.5 px-3 rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 mt-2 cursor-pointer shadow-xs hover:shadow"
             >
               <Trash2 className="w-3.5 h-3.5" />
               Supprimer
