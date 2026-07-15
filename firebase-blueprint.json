@@ -1,0 +1,66 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Un produit de santé et bien-être Fohow/Foherb personnalisé avec les coordonnées de son vendeur",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "L'identifiant unique du produit"
+        },
+        "name": {
+          "type": "string",
+          "description": "Le nom du produit"
+        },
+        "category": {
+          "type": "string",
+          "description": "La catégorie de produits (ex: Compléments alimentaires, Appareils de santé)"
+        },
+        "description": {
+          "type": "string",
+          "description": "La description du produit"
+        },
+        "image": {
+          "type": "string",
+          "description": "L'image du produit (Base64 ou URL)"
+        },
+        "price": {
+          "type": "number",
+          "description": "Le prix conseillé en euros"
+        },
+        "benefits": {
+          "type": "array",
+          "description": "Les bienfaits majeurs du produit"
+        },
+        "howToUse": {
+          "type": "string",
+          "description": "Conseils d'utilisation"
+        },
+        "ingredients": {
+          "type": "array",
+          "description": "Ingrédients ou composition"
+        },
+        "sellerName": {
+          "type": "string",
+          "description": "Nom du vendeur / propriétaire de la boutique"
+        },
+        "sellerSlug": {
+          "type": "string",
+          "description": "Le slug d'URL pour la boutique du vendeur"
+        },
+        "productSlug": {
+          "type": "string",
+          "description": "Le slug d'URL pour la page du produit"
+        }
+      },
+      "required": ["id", "name", "category", "description", "image"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "La collection contenant les fiches produits"
+    }
+  }
+}

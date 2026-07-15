@@ -10,6 +10,16 @@ interface CartDrawerProps {
   onUpdateQuantity: (productId: string, quantity: number) => void;
   onRemoveItem: (productId: string) => void;
   onClearCart: () => void;
+  onOrderSuccess?: (order: {
+    id: string;
+    items: CartItem[];
+    total: number;
+    date: string;
+    status: string;
+    customerName: string;
+    phone: string;
+    address: string;
+  }) => void;
 }
 
 export default function CartDrawer({
@@ -19,6 +29,7 @@ export default function CartDrawer({
   onUpdateQuantity,
   onRemoveItem,
   onClearCart,
+  onOrderSuccess,
 }: CartDrawerProps) {
   const [formData, setFormData] = useState({
     fullName: '',
@@ -52,7 +63,27 @@ export default function CartDrawer({
     setTimeout(() => {
       setIsSubmitting(false);
       setOrderCompleted(true);
-      setInvoiceId('OFW-' + Math.floor(100000 + Math.random() * 900000));
+      const generatedId = 'OFW-' + Math.floor(100000 + Math.random() * 900000);
+      setInvoiceId(generatedId);
+
+      if (onOrderSuccess) {
+        onOrderSuccess({
+          id: generatedId,
+          items: [...cartItems],
+          total: totalAmount,
+          date: new Date().toLocaleDateString('fr-FR', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          status: 'En cours de traitement',
+          customerName: formData.fullName,
+          phone: formData.phone,
+          address: formData.address
+        });
+      }
     }, 1500);
   };
 
@@ -143,7 +174,7 @@ export default function CartDrawer({
                         </div>
                         <div className="flex justify-between border-t border-accent/40 pt-2 font-bold text-sm">
                           <span className="text-ink">Total payé:</span>
-                          <span className="text-taupe">{totalAmount > 0 ? `${totalAmount} €` : "Sur devis"}</span>
+                          <span className="text-taupe">{totalAmount > 0 ? `${totalAmount.toLocaleString('fr-FR')} FCFA` : "Sur devis"}</span>
                         </div>
                       </div>
 
@@ -198,7 +229,7 @@ export default function CartDrawer({
                                 <h4 className="text-xs font-display font-semibold text-ink truncate">{item.product.name}</h4>
                                 <p className="text-taupe text-[10px]">{item.product.category}</p>
                                 {item.product.price ? (
-                                  <span className="text-xs font-bold text-ink">{item.product.price} €</span>
+                                  <span className="text-xs font-bold text-ink">{item.product.price.toLocaleString('fr-FR')} FCFA</span>
                                 ) : (
                                   <span className="text-[10px] text-taupe">Sur devis</span>
                                 )}
@@ -241,7 +272,7 @@ export default function CartDrawer({
                         {totalAmount > 0 && (
                           <div className="flex justify-between items-center text-taupe text-xs mb-1.5">
                             <span>Sous-total:</span>
-                            <span className="font-semibold text-ink">{totalAmount} €</span>
+                            <span className="font-semibold text-ink">{totalAmount.toLocaleString('fr-FR')} FCFA</span>
                           </div>
                         )}
                         <div className="flex justify-between items-center text-taupe text-xs">
@@ -252,7 +283,7 @@ export default function CartDrawer({
                         <div className="flex justify-between items-center text-ink font-bold">
                           <span>Montant Total:</span>
                           <span className="text-taupe font-display font-semibold italic text-lg">
-                            {totalAmount > 0 ? `${totalAmount} €` : "Sur devis"}
+                            {totalAmount > 0 ? `${totalAmount.toLocaleString('fr-FR')} FCFA` : "Sur devis"}
                           </span>
                         </div>
                       </div>

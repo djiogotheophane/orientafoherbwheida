@@ -9,6 +9,9 @@ export interface Product {
   benefits?: string[]; // Detailed list of benefits for the modal view
   howToUse?: string; // How to use instructions
   ingredients?: string[]; // Ingredients
+  sellerName?: string; // Name of the seller
+  sellerSlug?: string; // Slugified seller name
+  productSlug?: string; // Slugified product name
 }
 
 export type Category = 
@@ -29,4 +32,13 @@ export interface Review {
   rating: number;
   date: string;
   comment: string;
+}
+
+export interface Boutique {
+  id: string;
+  email: string;
+  sellerName: string;
+  sellerSlug: string;
+  shopName: string;
+  createdAt: string;
 }

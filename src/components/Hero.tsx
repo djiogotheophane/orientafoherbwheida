@@ -3,10 +3,22 @@ import { Compass, Leaf, ShieldCheck, Heart, ArrowDown } from 'lucide-react';
 import { motion } from 'motion/react';
 
 // Use the generated image path from AI Studio
-const HERO_BANNER_IMG = new URL('../assets/images/hero_banner_1783624456299.jpg', import.meta.url).href;
+const HERO_BANNER_IMG = new URL('../assets/images/hero_banner_showcase_1783635650141.jpg', import.meta.url).href;
 const HERO_BG_IMG = new URL('../assets/images/fohowhope_hero_banner_1783630258715.jpg', import.meta.url).href;
 
-export default function Hero() {
+export default function Hero({
+  tagline = "Partenaire Officiel FOHOW & FOHERB",
+  title = "Orienta",
+  subtitle = "Foherb Whieda",
+  description = "Orienta Foherb Whieda est une société spécialisée dans la vente de produits de santé d'excellence issus de la marque de prestige internationale fohow.com. Nous proposons des compléments alimentaires, des produits de bien-être, d'hygiène et soins, des boissons fonctionnelles ainsi que des appareils de santé avancés. Profitez également d'un véritable suivi d'orientation personnalisé dans chacun de ces domaines.",
+  buttonText = "Découvrir nos Produits"
+}: {
+  tagline?: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  buttonText?: string;
+}) {
   return (
     <div 
       id="hero" 
@@ -27,7 +39,7 @@ export default function Hero() {
               className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 border border-white/20 text-stone-100 text-[11px] font-bold tracking-wider uppercase mb-6 shadow-sm"
             >
               <Leaf className="w-3.5 h-3.5 text-[#c5a880]" />
-              <span>Partenaire Officiel FOHOW &amp; FOHERB</span>
+              <span>{tagline}</span>
             </motion.div>
 
             <motion.h1
@@ -36,7 +48,7 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.1 }}
               className="text-4xl sm:text-5xl lg:text-6xl font-display font-medium italic text-white tracking-wide leading-tight mb-5"
             >
-              Orienta <span className="text-[#c5a880] font-sans font-light not-italic block text-2xl sm:text-3xl tracking-widest mt-1 uppercase">Foherb Whieda</span>
+              {title} <span className="text-[#c5a880] font-sans font-light not-italic block text-2xl sm:text-3xl tracking-widest mt-1 uppercase">{subtitle}</span>
             </motion.h1>
 
             <motion.p
@@ -45,7 +57,7 @@ export default function Hero() {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="text-stone-200/90 text-xs sm:text-sm leading-relaxed mb-8 max-w-lg"
             >
-              Orienta Foherb Whieda est une société spécialisée dans la vente de produits de santé d'excellence issus de la marque de prestige internationale <a href="https://fohow.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-[#c5a880] text-[#c5a880] font-semibold">fohow.com</a>. Nous proposons des compléments alimentaires, des produits de bien-être, d'hygiène et soins, des boissons fonctionnelles ainsi que des appareils de santé avancés. Profitez également d'un véritable suivi d'orientation personnalisé dans chacun de ces domaines.
+              {description}
             </motion.p>
 
             {/* Quick Action Button */}
@@ -60,7 +72,7 @@ export default function Hero() {
                 href="#nos-produits"
                 className="w-full sm:w-auto text-center bg-[#c5a880] hover:bg-white hover:text-ink text-white font-semibold text-xs py-3.5 px-8 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg flex items-center justify-center gap-2"
               >
-                <span>Découvrir nos Produits</span>
+                <span>{buttonText}</span>
                 <ArrowDown className="w-4 h-4 animate-bounce" />
               </a>
               

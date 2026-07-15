@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
-import { Eye, ShoppingCart, Leaf, Award, Heart } from 'lucide-react';
+import { Eye, ShoppingCart, Leaf, Award, Heart, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 interface ProductCardProps {
@@ -8,9 +8,10 @@ interface ProductCardProps {
   product: Product;
   onViewDetails: (product: Product) => void;
   onOrder: (product: Product) => void;
+  onDelete?: (productId: string) => void;
 }
 
-export default function ProductCard({ product, onViewDetails, onOrder }: ProductCardProps) {
+export default function ProductCard({ product, onViewDetails, onOrder, onDelete }: ProductCardProps) {
   const [imgError, setImgError] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
@@ -32,7 +33,7 @@ export default function ProductCard({ product, onViewDetails, onOrder }: Product
   return (
     <motion.div
       id={`product-card-${product.id}`}
-      className="bg-white rounded-xl border border-accent/40 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col h-[450px] group"
+      className="bg-white rounded-xl border border-accent/40 overflow-hidden shadow-xs hover:shadow-md transition-all duration-300 flex flex-col min-h-[450px] h-auto pb-1 group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       initial={{ opacity: 0, y: 20 }}
@@ -83,6 +84,22 @@ export default function ProductCard({ product, onViewDetails, onOrder }: Product
           <Heart className={`w-4 h-4 ${isLiked ? 'fill-current' : ''}`} />
         </button>
 
+        {onDelete && (
+          <button 
+            id={`delete-btn-${product.id}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (window.confirm("Êtes-vous sûr de vouloir supprimer ce produit de votre site ?")) {
+                onDelete(product.id);
+              }
+            }}
+            className="absolute top-14 right-3 p-2 rounded-full bg-white/95 backdrop-blur-md text-stone-400 hover:text-rose-600 hover:scale-110 transition-all duration-300 shadow-xs z-10"
+            title="Supprimer ce produit"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        )}
+
         {/* Quick View Button Overlay */}
         <div className="absolute inset-0 bg-ink/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
           <button
@@ -106,6 +123,12 @@ export default function ProductCard({ product, onViewDetails, onOrder }: Product
             {product.name}
           </h3>
           
+          {product.sellerName && (
+            <span className="text-[10px] text-taupe font-medium block mt-1.5 mb-1">
+              Conseiller : <span className="font-semibold">{product.sellerName}</span>
+            </span>
+          )}
+          
           <p className="text-[#666] text-[11px] leading-relaxed mb-4 line-clamp-3">
             {product.description}
           </p>
@@ -116,7 +139,7 @@ export default function ProductCard({ product, onViewDetails, onOrder }: Product
           {product.price && (
             <div className="mb-4">
               <span className="text-xs text-taupe/80 font-semibold uppercase tracking-wider">Prix conseillé: </span>
-              <span className="text-sm font-bold text-ink">{product.price} €</span>
+              <span className="text-sm font-bold text-ink">{product.price.toLocaleString('fr-FR')} FCFA</span>
             </div>
           )}
 
@@ -125,7 +148,7 @@ export default function ProductCard({ product, onViewDetails, onOrder }: Product
             <button
               id={`card-details-btn-${product.id}`}
               onClick={() => onViewDetails(product)}
-              className="w-full text-center border border-taupe text-taupe font-semibold text-[10px] uppercase tracking-wider py-2.5 px-3 rounded-md transition-colors duration-200 hover:bg-beige"
+              className="w-full text-center border border-taupe text-taupe font-semibold text-[10px] uppercase tracking-wider py-2.5 px-3 rounded-md transition-colors duration-200 hover:bg-beige cursor-pointer"
             >
               Détails
             </button>
@@ -143,6 +166,22 @@ export default function ProductCard({ product, onViewDetails, onOrder }: Product
               Commander
             </a>
           </div>
+
+          {onDelete && (
+            <button
+              id={`card-delete-action-btn-${product.id}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                if (window.confirm("Êtes-vous sûr de vouloir supprimer ce produit de votre site ?")) {
+                  onDelete(product.id);
+                }
+              }}
+              className="w-full text-center bg-rose-600 hover:bg-rose-700 text-white font-bold text-[10px] uppercase tracking-wider py-2.5 px-3 rounded-md transition-all duration-200 flex items-center justify-center gap-1.5 mt-2 cursor-pointer shadow-sm hover:shadow"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Supprimer
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

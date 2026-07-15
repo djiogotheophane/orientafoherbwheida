@@ -137,7 +137,7 @@ export default function ProductModal({ product, onClose, onOrder }: ProductModal
                 {product.price && (
                   <div className="flex flex-col">
                     <span className="text-[9px] text-taupe font-semibold uppercase tracking-wider">Prix conseillé</span>
-                    <span className="text-xl font-display font-semibold text-ink">{product.price} €</span>
+                    <span className="text-xl font-display font-semibold text-ink">{product.price.toLocaleString('fr-FR')} FCFA</span>
                   </div>
                 )}
                 
