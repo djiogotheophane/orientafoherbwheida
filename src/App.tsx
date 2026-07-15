@@ -657,11 +657,11 @@ export default function App() {
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
                   <h2 className="text-3xl font-display font-semibold italic text-ink tracking-wide">
-                    {currentSpace === 'client' ? 'Votre Espace Client Personnel' : 'Gestion du Magasin Orienta'}
+                    {currentSpace === 'client' ? 'Nos Produits FOHOW' : 'Gestion du Magasin Orienta'}
                   </h2>
                   <p className="text-[#666] text-xs sm:text-sm mt-1 max-w-xl">
                     {currentSpace === 'client' 
-                      ? 'Consultez votre carte de fidélité, suivez vos commandes en cours et explorez notre catalogue complet de remèdes souverains.'
+                      ? 'Explorez notre catalogue complet de remèdes souverains et de solutions de bien-être de prestige.'
                       : 'Supervisez vos produits, gérez vos ventes virtuelles et enrichissez votre catalogue de nouvelles références.'}
                   </p>
                 </div>
@@ -673,113 +673,6 @@ export default function App() {
                 </div>
               </div>
             </div>
-
-            {/* ESPACE CLIENT - PERSONAL DASHBOARD WIDGET */}
-            <AnimatePresence mode="wait">
-              {currentSpace === 'client' && (
-                <motion.div 
-                  initial={{ opacity: 0, y: -15 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -15 }}
-                  transition={{ duration: 0.3 }}
-                  className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-12"
-                  id="client-space-dashboard"
-                >
-                  {/* Loyalty Points Card */}
-                  <div className="bg-gradient-to-br from-stone-900 to-stone-850 text-white rounded-2xl p-6 border border-stone-800 shadow-lg flex flex-col justify-between relative overflow-hidden group">
-                    <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 w-32 h-32 rounded-full bg-taupe/10 group-hover:scale-125 transition-transform duration-500 pointer-events-none" />
-                    <div>
-                      <div className="flex justify-between items-start mb-4">
-                        <span className="bg-taupe text-white text-[9px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full flex items-center gap-1">
-                          <Award className="w-3 h-3" /> Fohow Gold Club
-                        </span>
-                        <Coins className="w-5 h-5 text-taupe animate-pulse" />
-                      </div>
-                      <p className="text-[10px] text-stone-400 font-bold uppercase tracking-wider font-mono">Membre Privilège</p>
-                      <h4 className="text-sm font-semibold tracking-wide text-stone-200 truncate mt-1">djiogotheophane@gmail.com</h4>
-                      
-                      {/* Points Counter */}
-                      <div className="my-5">
-                        <div className="text-3xl font-display font-bold italic text-white flex items-baseline gap-1.5">
-                          {50 + orders.reduce((acc, o) => acc + (o.items || []).reduce((sum: number, it: any) => sum + it.quantity, 0) * 10, 0)}
-                          <span className="text-xs font-sans not-italic font-medium text-stone-400">pts</span>
-                        </div>
-                        <div className="w-full bg-stone-800 rounded-full h-1.5 mt-2 overflow-hidden">
-                          <div 
-                            className="bg-taupe h-1.5 rounded-full transition-all duration-500" 
-                            style={{ width: `${Math.min(100, ((50 + orders.reduce((acc, o) => acc + (o.items || []).reduce((sum: number, it: any) => sum + it.quantity, 0) * 10, 0)) / 200) * 100)}%` }}
-                          />
-                        </div>
-                        <p className="text-[9px] text-stone-400 mt-1.5">Prochain cadeau à 200 points ! (10 points par produit commandé)</p>
-                      </div>
-                    </div>
-                    <div className="text-[9px] text-stone-500 border-t border-stone-800 pt-3">
-                      Numéro de carte : <span className="font-mono text-stone-400">FID-2026-94812</span>
-                    </div>
-                  </div>
-
-                  {/* Order Tracker Card */}
-                  <div className="bg-white rounded-2xl p-6 border border-accent/40 shadow-xs flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-xs font-bold uppercase tracking-widest text-taupe flex items-center gap-1.5">
-                          <ShoppingBag className="w-3.5 h-3.5 text-taupe" /> Suivi de vos Commandes
-                        </h4>
-                        <span className="bg-taupe/10 text-taupe text-[10px] font-bold py-0.5 px-2 rounded-full">
-                          {orders.length} commande(s)
-                        </span>
-                      </div>
-
-                      {/* Orders Content list */}
-                      <div className="overflow-y-auto max-h-[160px] pr-1 space-y-2.5 divide-y divide-stone-100" id="orders-scroll-container">
-                        {orders.length === 0 ? (
-                          <div className="text-center py-8">
-                            <ShoppingBag className="w-8 h-8 text-stone-300 mx-auto mb-2" />
-                            <p className="text-[10px] text-stone-500 leading-relaxed">
-                              Aucune commande passée.<br />Vos achats validés s'afficheront ici.
-                            </p>
-                          </div>
-                        ) : (
-                          orders.map((ord, idx) => (
-                            <div key={ord.id} className={`pt-2.5 first:pt-0 ${idx > 0 ? 'mt-1' : ''}`}>
-                              <div className="flex justify-between items-center text-[10px] mb-1">
-                                <span className="font-bold text-ink">{ord.id}</span>
-                                <span className="text-stone-400">{ord.date}</span>
-                              </div>
-                              <p className="text-[9px] text-stone-500 truncate mb-1.5">
-                                {ord.items.map((it: any) => `${it.quantity}x ${it.product.name}`).join(', ')}
-                              </p>
-                              <div className="flex justify-between items-center">
-                                <span className="text-[10px] font-bold text-taupe">{ord.total?.toLocaleString('fr-FR')} FCFA</span>
-                                <div className="flex items-center gap-2">
-                                  <span className="inline-flex items-center gap-1 text-[8px] font-bold uppercase tracking-wider text-[#656d4a] bg-[#656d4a]/10 px-1.5 py-0.5 rounded">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-[#656d4a] animate-pulse" /> {ord.status}
-                                  </span>
-                                  <a 
-                                    href={`https://api.whatsapp.com/send?phone=237697254607&text=${encodeURIComponent(
-                                      `Bonjour, je souhaite suivre ma commande Orienta ${ord.id} validée le ${ord.date} d'un montant de ${ord.total?.toLocaleString('fr-FR')} FCFA.`
-                                    )}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-[8px] font-bold text-white bg-[#25D366] hover:bg-[#22c35e] px-2 py-0.5 rounded transition-colors"
-                                  >
-                                    WhatsApp
-                                  </a>
-                                </div>
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                    <div className="h-px bg-stone-100 my-2" />
-                    <p className="text-[9px] text-stone-400 text-center">
-                      Orienta valide vos commandes et prend contact avec vous sous 24h.
-                    </p>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* ESPACE ADMINISTRATEUR - METRICS & QUICK ACTIONS */}
             <AnimatePresence mode="wait">
