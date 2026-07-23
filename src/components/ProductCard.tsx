@@ -42,9 +42,9 @@ export default function ProductCard({ product, onViewDetails, onOrder, onDelete 
       transition={{ duration: 0.5 }}
     >
       {/* Image Area */}
-      <div className="relative h-[200px] w-full overflow-hidden bg-gradient-to-b from-beige/30 to-beige/60 flex items-center justify-center p-4">
+      <div className="relative h-[240px] w-full overflow-hidden bg-gradient-to-b from-beige/30 to-beige/60 flex items-center justify-center">
         {/* Subtle background color based on hover */}
-        <div className="absolute inset-0 bg-accent/25 opacity-0 group-hover:opacity-40 transition-opacity duration-300" />
+        <div className="absolute inset-0 bg-accent/25 opacity-0 group-hover:opacity-40 transition-opacity duration-300 z-1" />
         
         {!product.image || imgError ? (
           <div className="flex flex-col items-center justify-center text-center p-4 z-10 select-none">
@@ -56,12 +56,12 @@ export default function ProductCard({ product, onViewDetails, onOrder, onDelete 
             alt={product.name}
             onError={() => setImgError(true)}
             referrerPolicy="no-referrer"
-            className="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500"
           />
         )}
 
         {/* Floating Category Badge */}
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md border border-accent/40 py-1 px-2.5 rounded-full flex items-center gap-1.5 shadow-xs">
+        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-md border border-accent/40 py-1 px-2.5 rounded-full flex items-center gap-1.5 shadow-xs z-10">
           {getCategoryIcon()}
           <span className="text-[9px] font-semibold tracking-wider text-taupe uppercase">
             {product.category}
@@ -75,7 +75,7 @@ export default function ProductCard({ product, onViewDetails, onOrder, onDelete 
             e.stopPropagation();
             setIsLiked(!isLiked);
           }}
-          className={`absolute top-3 right-3 p-2 rounded-full shadow-xs transition-all duration-300 ${
+          className={`absolute top-3 right-3 p-2 rounded-full shadow-xs transition-all duration-300 z-10 ${
             isLiked 
               ? 'bg-rose-50 text-rose-500 scale-110' 
               : 'bg-white/95 backdrop-blur-md text-stone-400 hover:text-rose-500 hover:scale-110'
@@ -149,7 +149,7 @@ export default function ProductCard({ product, onViewDetails, onOrder, onDelete 
             
             <a
               id={`card-order-btn-${product.id}`}
-              href={`https://api.whatsapp.com/send?phone=237697254607&text=${encodeURIComponent(
+              href={`https://api.whatsapp.com/send?phone=237693573891&text=${encodeURIComponent(
                 `Bonjour, je souhaite obtenir plus d'informations et commander le produit : ${product.name}.`
               )}`}
               target="_blank"

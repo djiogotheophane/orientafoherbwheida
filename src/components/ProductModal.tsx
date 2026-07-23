@@ -49,10 +49,10 @@ export default function ProductModal({ product, onClose, onOrder }: ProductModal
             </button>
 
             {/* Product Image Panel */}
-            <div className="md:w-1/2 bg-gradient-to-b from-beige/40 to-beige/70 p-6 sm:p-8 flex flex-col justify-center items-center relative min-h-[300px] border-r border-accent/20">
-              <div className="absolute inset-0 bg-accent/10" />
+            <div className="md:w-1/2 bg-gradient-to-b from-beige/40 to-beige/70 flex flex-col justify-between items-center relative min-h-[320px] md:min-h-[400px] border-r border-accent/20 overflow-hidden">
+              <div className="absolute inset-0 bg-accent/10 pointer-events-none z-1" />
               {!product.image || imgError ? (
-                <div className="flex flex-col items-center justify-center text-center p-4 z-10 select-none">
+                <div className="flex flex-col items-center justify-center text-center p-4 z-10 select-none my-auto">
                   <span className="text-[10px] uppercase tracking-widest text-taupe font-bold">Image non fournie</span>
                 </div>
               ) : (
@@ -61,11 +61,11 @@ export default function ProductModal({ product, onClose, onOrder }: ProductModal
                   alt={product.name}
                   onError={() => setImgError(true)}
                   referrerPolicy="no-referrer"
-                  className="w-full max-h-[350px] object-contain relative z-10"
+                  className="w-full h-full min-h-[280px] max-h-[380px] object-cover relative z-0"
                 />
               )}
               
-              <div className="relative z-10 mt-6 bg-white/90 backdrop-blur-md border border-accent/40 px-4 py-2.5 rounded-xl w-full text-center">
+              <div className="absolute bottom-4 left-4 right-4 z-10 bg-white/95 backdrop-blur-md border border-accent/40 px-4 py-2 rounded-xl text-center shadow-xs">
                 <span className="text-[10px] text-taupe uppercase tracking-widest font-semibold block mb-0.5">Catégorie</span>
                 <span className="text-sm font-display font-bold text-ink">{product.category}</span>
               </div>
@@ -143,7 +143,7 @@ export default function ProductModal({ product, onClose, onOrder }: ProductModal
                 
                 <a
                   id="modal-order-btn"
-                  href={`https://api.whatsapp.com/send?phone=237697254607&text=${encodeURIComponent(
+                  href={`https://api.whatsapp.com/send?phone=237693573891&text=${encodeURIComponent(
                     `Bonjour, je souhaite obtenir plus d'informations et commander le produit : ${product.name}.`
                   )}`}
                   target="_blank"

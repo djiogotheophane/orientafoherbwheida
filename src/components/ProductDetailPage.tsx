@@ -59,7 +59,7 @@ export default function ProductDetailPage({ product, onNavigate, onAddToCart }: 
         <div className="bg-white rounded-3xl border border-accent/40 shadow-sm overflow-hidden grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 p-6 sm:p-10 lg:p-12">
           
           {/* Left Column: Image Area */}
-          <div className="flex flex-col items-center justify-center bg-gradient-to-b from-beige/20 to-beige/50 rounded-2xl p-6 border border-accent/20 h-[350px] sm:h-[450px] relative overflow-hidden">
+          <div className="flex flex-col items-center justify-center bg-gradient-to-b from-beige/20 to-beige/50 rounded-2xl border border-accent/20 h-[380px] sm:h-[480px] relative overflow-hidden">
             {!product.image || imgError ? (
               <span className="text-[10px] uppercase tracking-widest text-taupe font-bold">Image non fournie</span>
             ) : (
@@ -68,14 +68,14 @@ export default function ProductDetailPage({ product, onNavigate, onAddToCart }: 
                 alt={product.name}
                 onError={() => setImgError(true)}
                 referrerPolicy="no-referrer"
-                className="max-w-full max-h-full object-contain"
+                className="w-full h-full object-cover"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4 }}
               />
             )}
             
-            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md border border-accent/40 py-1.5 px-3 rounded-full flex items-center gap-2 shadow-xs">
+            <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-md border border-accent/40 py-1.5 px-3 rounded-full flex items-center gap-2 shadow-xs z-10">
               {getCategoryIcon()}
               <span className="text-[10px] font-bold tracking-wider text-taupe uppercase">
                 {product.category}
@@ -212,7 +212,7 @@ export default function ProductDetailPage({ product, onNavigate, onAddToCart }: 
 
               {/* WhatsApp direct Order link */}
               <a
-                href={`https://api.whatsapp.com/send?phone=237697254607&text=${encodeURIComponent(
+                href={`https://api.whatsapp.com/send?phone=237693573891&text=${encodeURIComponent(
                   `Bonjour, je souhaite commander ${quantity} x le produit "${product.name}". Pouvez-vous me guider ?`
                 )}`}
                 target="_blank"

@@ -78,7 +78,7 @@ export default function Hero({
               
               <a
                 id="hero-contact-btn"
-                href={`https://api.whatsapp.com/send?phone=237697254607&text=${encodeURIComponent(
+                href={`https://api.whatsapp.com/send?phone=237693573891&text=${encodeURIComponent(
                   "Bonjour, je souhaite obtenir plus d'informations sur vos produits."
                 )}`}
                 target="_blank"

@@ -1,5 +1,5 @@
-import React from 'react';
-import { ShoppingCart, Search, Leaf, User, Settings } from 'lucide-react';
+import React, { useRef } from 'react';
+import { ShoppingCart, Search, Settings, ShieldCheck, LogOut, Lock } from 'lucide-react';
 import { motion } from 'motion/react';
 
 const LOGO_IMG = new URL('../assets/images/fohowhope_logo_1783630501861.jpg', import.meta.url).href;
@@ -23,15 +23,41 @@ export default function Navbar({
   onSpaceChange,
   onLogoClick,
 }: NavbarProps) {
+  // Triple-click on logo triggers secret admin authentication
+  const clickCountRef = useRef(0);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleLogoSecretClick = () => {
+    clickCountRef.current += 1;
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
+    if (clickCountRef.current >= 3) {
+      clickCountRef.current = 0;
+      onSpaceChange('admin');
+      return;
+    }
+
+    timerRef.current = setTimeout(() => {
+      clickCountRef.current = 0;
+      if (onLogoClick) {
+        onLogoClick();
+      }
+    }, 400);
+  };
+
   return (
     <nav className="sticky top-0 z-40 bg-gray-light/90 backdrop-blur-md border-b border-stone-200" id="main-nav">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 sm:h-20 items-center justify-between gap-4">
           
-          {/* Brand Logo */}
+          {/* Brand Logo (Secret triple-click opens Admin space) */}
           <div 
-            className="flex items-center gap-2.5 shrink-0 cursor-pointer hover:opacity-95 transition-opacity"
-            onClick={onLogoClick}
+            className="flex items-center gap-2.5 shrink-0 cursor-pointer hover:opacity-95 transition-opacity select-none"
+            onClick={handleLogoSecretClick}
+            title="Orienta Foherb Whieda"
           >
             <img 
               src={LOGO_IMG} 
@@ -64,40 +90,27 @@ export default function Navbar({
             />
           </div>
 
-          {/* Quick links, Space Switcher & Cart */}
+          {/* Quick links & Cart */}
           <div className="flex items-center gap-2 sm:gap-4">
             
-            {/* Espace Selector Toggle */}
-            <div className="flex items-center bg-beige border border-accent/40 rounded-xl p-0.5 sm:p-1 shrink-0 shadow-2xs">
-              <button
-                id="switch-client-btn"
-                onClick={() => onSpaceChange('client')}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                  currentSpace === 'client'
-                    ? 'bg-ink text-white shadow-xs'
-                    : 'text-taupe hover:text-ink hover:bg-beige-dark/20'
-                }`}
-                title="Espace Client - Voir les produits, commander et suivre ses achats"
-              >
-                <User className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Espace Client</span>
-                <span className="xs:hidden">Client</span>
-              </button>
-              <button
-                id="switch-admin-btn"
-                onClick={() => onSpaceChange('admin')}
-                className={`flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                  currentSpace === 'admin'
-                    ? 'bg-ink text-white shadow-xs'
-                    : 'text-taupe hover:text-ink hover:bg-beige-dark/20'
-                }`}
-                title="Espace Administrateur - Gérer et ajouter de nouveaux produits"
-              >
-                <Settings className="w-3.5 h-3.5" />
-                <span className="hidden xs:inline">Administrateur</span>
-                <span className="xs:hidden">Admin</span>
-              </button>
-            </div>
+            {/* If in Admin Mode, show a clear Exit Admin Mode button */}
+            {currentSpace === 'admin' && (
+              <div className="flex items-center bg-amber-50 border border-amber-200/80 rounded-xl p-1 gap-2 text-amber-900 shadow-2xs">
+                <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-900">
+                  <ShieldCheck className="w-4 h-4 text-amber-700 shrink-0" />
+                  <span className="hidden sm:inline">Mode Admin Actif</span>
+                </div>
+                <button
+                  id="switch-client-btn"
+                  onClick={() => onSpaceChange('client')}
+                  className="flex items-center gap-1 px-2.5 py-1.5 bg-amber-900 text-white rounded-lg text-[9px] sm:text-[10px] font-bold uppercase tracking-wider hover:bg-amber-950 transition-all cursor-pointer shadow-xs"
+                  title="Quitter le mode administration"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span>Quitter</span>
+                </button>
+              </div>
+            )}
 
             {/* Cart Button */}
             <button

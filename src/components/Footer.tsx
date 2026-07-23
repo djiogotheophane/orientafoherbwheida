@@ -1,9 +1,13 @@
 import React from 'react';
-import { Leaf, Heart, ShieldAlert } from 'lucide-react';
+import { Heart, ShieldAlert, Lock } from 'lucide-react';
 
 const LOGO_IMG = new URL('../assets/images/fohowhope_logo_1783630501861.jpg', import.meta.url).href;
 
-export default function Footer() {
+interface FooterProps {
+  onAdminTrigger?: () => void;
+}
+
+export default function Footer({ onAdminTrigger }: FooterProps) {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -74,7 +78,24 @@ export default function Footer() {
 
         {/* Bottom copyright */}
         <div className="mt-12 pt-8 border-t border-stone-800 text-center text-xs text-stone-500 flex flex-col sm:flex-row justify-between items-center gap-4">
-          <p>© {currentYear} Orienta Foherb Whieda. Tous droits réservés.</p>
+          <p className="flex items-center gap-1.5 select-none">
+            <span 
+              onClick={onAdminTrigger} 
+              className="cursor-pointer hover:text-stone-300 transition-colors inline-flex items-center gap-1"
+              title="© Orienta Foherb Whieda"
+            >
+              © {currentYear} Orienta Foherb Whieda. Tous droits réservés.
+            </span>
+            {onAdminTrigger && (
+              <button 
+                onClick={onAdminTrigger} 
+                className="opacity-15 hover:opacity-100 transition-opacity p-0.5 text-stone-600 hover:text-stone-300 cursor-pointer"
+                title="Accès Administrateur"
+              >
+                <Lock className="w-3 h-3" />
+              </button>
+            )}
+          </p>
           <div className="flex gap-6">
             <a href="#legal" className="hover:text-stone-300 transition-colors">Mentions légales</a>
             <a href="#privacy" className="hover:text-stone-300 transition-colors">Confidentialité</a>

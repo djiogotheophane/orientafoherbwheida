@@ -92,6 +92,18 @@ export default function App() {
     return () => clearInterval(interval);
   }, [adminLockoutUntil]);
 
+  // Global secret keyboard shortcut to open admin section: Ctrl + Shift + A (or Cmd + Shift + A)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'A' || e.key === 'a')) {
+        e.preventDefault();
+        handleSpaceChange('admin');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isAdminUnlocked]);
+
   const handleVerifyAdminCode = (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -1256,7 +1268,7 @@ export default function App() {
       >
         <a
           id="whatsapp-floating-btn"
-          href={`https://api.whatsapp.com/send?phone=237697254607&text=${encodeURIComponent(
+          href={`https://api.whatsapp.com/send?phone=237693573891&text=${encodeURIComponent(
             "Bonjour, je souhaite obtenir plus d'informations sur vos produits de santé et bien-être."
           )}`}
           target="_blank"
@@ -1280,7 +1292,7 @@ export default function App() {
       </motion.div>
 
       {/* Modern & Detailed Footing */}
-      <Footer />
+      <Footer onAdminTrigger={() => handleSpaceChange('admin')} />
 
     </div>
   );
