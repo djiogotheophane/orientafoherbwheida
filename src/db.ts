@@ -79,8 +79,23 @@ export function slugify(text: string): string {
     .replace(/-+$/, ''); // trim trailing hyphens
 }
 
-// Load all products from Firestore or localStorage
+// Load all products from Server API (with localStorage fallback)
 export async function loadProducts(): Promise<Product[]> {
+  try {
+    const res = await fetch('/api/products');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        const uniqueList = deduplicateProducts(data);
+        localStorage.setItem('fohowhope_user_products', JSON.stringify(uniqueList));
+        localProducts = uniqueList;
+        return uniqueList;
+      }
+    }
+  } catch (err) {
+    console.warn("Server API fetch failed, trying local storage or Firestore fallback:", err);
+  }
+
   const db = await getDb();
   if (db) {
     try {
@@ -92,7 +107,6 @@ export async function loadProducts(): Promise<Product[]> {
         list.push({ id: doc.id, ...doc.data() } as Product);
       });
       const uniqueList = deduplicateProducts(list);
-      // Also update localStorage so it's always cached and up to date
       localStorage.setItem('fohowhope_user_products', JSON.stringify(uniqueList));
       localProducts = uniqueList;
       return uniqueList;
@@ -105,7 +119,7 @@ export async function loadProducts(): Promise<Product[]> {
   return deduplicateProducts(localProducts);
 }
 
-// Save a single product
+// Save a single product to Server API and local memory
 export async function saveProduct(product: Product): Promise<void> {
   // Ensure slugs are defined
   if (!product.productSlug) {
@@ -130,6 +144,18 @@ export async function saveProduct(product: Product): Promise<void> {
   localProducts = uniqueList;
   localStorage.setItem('fohowhope_user_products', JSON.stringify(uniqueList));
 
+  // Sync to Server API
+  try {
+    await fetch('/api/products', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(product)
+    });
+    console.log(`Product "${product.name}" saved to Server API.`);
+  } catch (err) {
+    console.error("Failed to save product to Server API:", err);
+  }
+
   // Sync to Firestore if available
   const db = await getDb();
   if (db) {
@@ -137,17 +163,26 @@ export async function saveProduct(product: Product): Promise<void> {
       const firestoreModule = await import('firebase/firestore');
       const docRef = firestoreModule.doc(db, 'products', product.id);
       await firestoreModule.setDoc(docRef, product);
-      console.log(`Product ${product.name} saved successfully to Cloud Firestore!`);
     } catch (err) {
       console.error("Failed to save to Firestore:", err);
     }
   }
 }
 
-// Delete a single product
+// Delete a single product from Server API
 export async function deleteProductFromDb(productId: string): Promise<void> {
   localProducts = localProducts.filter(p => p.id !== productId);
   localStorage.setItem('fohowhope_user_products', JSON.stringify(localProducts));
+
+  // Sync deletion to Server API
+  try {
+    await fetch(`/api/products/${productId}`, {
+      method: 'DELETE'
+    });
+    console.log(`Product "${productId}" deleted from Server API.`);
+  } catch (err) {
+    console.error("Failed to delete product from Server API:", err);
+  }
 
   const db = await getDb();
   if (db) {
@@ -155,7 +190,6 @@ export async function deleteProductFromDb(productId: string): Promise<void> {
       const firestoreModule = await import('firebase/firestore');
       const docRef = firestoreModule.doc(db, 'products', productId);
       await firestoreModule.deleteDoc(docRef);
-      console.log(`Product ${productId} deleted successfully from Cloud Firestore!`);
     } catch (err) {
       console.error("Failed to delete from Firestore:", err);
     }

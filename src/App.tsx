@@ -225,36 +225,22 @@ export default function App() {
     };
   }, []);
 
-  // Load products & boutiques from Database on Mount (Firestore and localStorage sync)
+  // Load products from Server API / Database on Mount
   useEffect(() => {
     async function initDbData() {
-      const isCleared = localStorage.getItem('fohowhope_first_time_clear_products_v3');
-      if (!isCleared) {
-        localStorage.removeItem('fohowhope_user_products');
-        localStorage.setItem('fohowhope_first_time_clear_products_v3', 'true');
-        setProducts([]);
-        
-        // Asynchronously clean Firestore products if Firestore is set up
-        try {
-          const { getDb } = await import('./db');
-          const db = await getDb();
-          if (db) {
-            const firestoreModule = await import('firebase/firestore');
-            const productsCol = firestoreModule.collection(db, 'products');
-            const snapshot = await firestoreModule.getDocs(productsCol);
-            for (const d of snapshot.docs) {
-              await firestoreModule.deleteDoc(firestoreModule.doc(db, 'products', d.id));
-            }
-          }
-        } catch (e) {
-          console.log("Firestore cleaning ignored or completed.");
-        }
-      } else {
-        const loadedProds = await loadProducts();
-        setProducts(deduplicateProducts(loadedProds));
-      }
+      const loadedProds = await loadProducts();
+      setProducts(deduplicateProducts(loadedProds));
     }
     initDbData();
+
+    // Refetch when page gains focus to ensure latest admin products are shown
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        initDbData();
+      }
+    };
+    window.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => window.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
   // Form State for Adding Product
